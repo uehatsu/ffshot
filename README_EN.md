@@ -15,6 +15,7 @@ First Fox Screenshot (ffshot) is a Windows app that lives in the system tray and
 - Two capture backends: "Normal (GDI)" and "DirectX (Direct3D / DXGI Desktop Duplication)"
   - DirectX full-screen (borderless) apps that come out black with GDI can be captured with the Direct3D backend
   - Where Direct3D capture is unavailable (Remote Desktop, etc.) it falls back to GDI automatically
+- UI in English and Japanese (follows the Windows display language; can be fixed in the settings)
 - Settings are stored in `%APPDATA%\ffshot\settings.json`
 
 ## Requirements
@@ -95,7 +96,7 @@ When started, a fox icon appears in the tray. Left-click or right-click opens th
 
 <img src="docs/doc_01.png" width="415" alt="Fox icon in the tray and its menu (running as a normal user)">
 
-The settings dialog lets you change the following. (The UI is in Japanese.)
+The settings dialog lets you change the following. (The screenshots show the Japanese UI; the app switches to English on non-Japanese systems or via the Language setting.)
 
 <img src="docs/settings.png" width="482" alt="Settings dialog">
 
@@ -110,6 +111,7 @@ The settings dialog lets you change the following. (The UI is in Japanese.)
 | Include the mouse cursor | Off |
 | Show a notification after saving | On |
 | Start automatically at Windows logon | Off |
+| Language | Auto (Windows display language; English unless it is Japanese) |
 
 After a capture is saved, a notification appears at the bottom right (it can be turned off in the settings).
 

@@ -8,6 +8,7 @@ namespace FFShot.Tests;
 /// <summary>
 /// README 用スクリーンショットの生成。通常のテスト実行では何もしない。
 /// 実行: FFSHOT_DOCS=1 dotnet test tests/FFShot.Tests --filter DocsScreenshots
+/// FFSHOT_DOCS_LANG=en を付けると英語 UI で %TEMP% に出力する（README 用ではなくレイアウト確認用）。
 /// </summary>
 [Trait("Category", "Screen")]
 public class DocsScreenshots
@@ -32,6 +33,11 @@ public class DocsScreenshots
             try
             {
                 Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
+                var lang = Environment.GetEnvironmentVariable("FFSHOT_DOCS_LANG");
+                if (!string.IsNullOrEmpty(lang))
+                {
+                    Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.GetCultureInfo(lang);
+                }
                 action();
             }
             catch (Exception ex)
@@ -76,7 +82,10 @@ public class DocsScreenshots
                 ?? throw new InvalidOperationException("ウィンドウ矩形が取れません");
             using var backend = new GdiCaptureBackend();
             using var bmp = backend.Capture(bounds);
-            var path = Path.Combine(DocsDir(), "settings.png");
+            var lang = Environment.GetEnvironmentVariable("FFSHOT_DOCS_LANG");
+            var path = string.IsNullOrEmpty(lang)
+                ? Path.Combine(DocsDir(), "settings.png")
+                : Path.Combine(Path.GetTempPath(), $"ffshot-docs-settings-{lang}.png");
             bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
             form.Close();
         });

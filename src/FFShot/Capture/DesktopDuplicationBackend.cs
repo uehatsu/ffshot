@@ -1,4 +1,5 @@
 using System.Drawing.Imaging;
+using FFShot.Resources;
 using SharpGen.Runtime;
 using Vortice.Direct3D;
 using Vortice.Direct3D11;
@@ -24,7 +25,7 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
     {
         if (screenBounds.Width <= 0 || screenBounds.Height <= 0)
         {
-            throw new CaptureException("撮影範囲が空です。");
+            throw new CaptureException(Strings.Capture_EmptyRegion);
         }
 
         var result = new Bitmap(screenBounds.Width, screenBounds.Height, PixelFormat.Format32bppArgb);
@@ -43,7 +44,7 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
         catch (SharpGenException ex)
         {
             result.Dispose();
-            throw new CaptureException($"Direct3D キャプチャに失敗しました: {ex.Message}", ex);
+            throw new CaptureException(string.Format(Strings.Capture_D3DFailed, ex.Message), ex);
         }
         catch
         {
@@ -54,7 +55,7 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
         if (!covered)
         {
             result.Dispose();
-            throw new CaptureException("撮影範囲に対応する出力（モニター）が見つかりません。");
+            throw new CaptureException(Strings.Capture_NoOutput);
         }
 
         return result;
@@ -88,7 +89,7 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
 
                     if (desc.Rotation != ModeRotation.Identity && desc.Rotation != ModeRotation.Unspecified)
                     {
-                        throw new CaptureException("回転したディスプレイは Direct3D キャプチャに未対応です。");
+                        throw new CaptureException(Strings.Capture_RotatedUnsupported);
                     }
 
                     if (device is null)
@@ -120,7 +121,7 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
         var format = duplication.Description.ModeDescription.Format;
         if (format != Format.B8G8R8A8_UNorm && format != Format.B8G8R8A8_UNorm_SRgb)
         {
-            throw new CaptureException($"未対応のデスクトップ形式です: {format}（HDR が有効な場合は GDI を使用してください）");
+            throw new CaptureException(string.Format(Strings.Capture_FormatUnsupported, format));
         }
 
         using var frame = AcquireFrame(duplication);
@@ -167,11 +168,11 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
         }
         catch (SharpGenException ex) when (ex.ResultCode == ResultCode.Unsupported)
         {
-            throw new CaptureException("この環境では Desktop Duplication が使えません（リモートセッションや一部の仮想環境）。", ex);
+            throw new CaptureException(Strings.Capture_DDUnsupported, ex);
         }
         catch (SharpGenException ex) when (ex.ResultCode == ResultCode.NotCurrentlyAvailable)
         {
-            throw new CaptureException("Desktop Duplication の同時使用数の上限に達しています。", ex);
+            throw new CaptureException(Strings.Capture_DDNotAvailable, ex);
         }
     }
 
@@ -186,7 +187,7 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
             }
             if (hr == ResultCode.AccessLost)
             {
-                throw new CaptureException("デスクトップへのアクセスが失われました（モード切替中など）。もう一度お試しください。");
+                throw new CaptureException(Strings.Capture_DDAccessLost);
             }
             hr.CheckError();
 
@@ -204,7 +205,7 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
                 return resource.QueryInterface<ID3D11Texture2D>();
             }
         }
-        throw new CaptureException("Desktop Duplication からフレームを取得できませんでした（タイムアウト）。");
+        throw new CaptureException(Strings.Capture_DDTimeout);
     }
 
     /// <summary>マップ済みテクスチャの overlap 部分を target（原点 targetOrigin）へ行単位でコピーする。BGRA → Format32bppArgb は同一レイアウト。</summary>

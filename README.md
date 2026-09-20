@@ -15,6 +15,7 @@ First Fox Screenshot（ffshot、一番狐）は、タスクトレイに常駐し
 - 取得方式を「通常 (GDI)」と「DirectX (Direct3D / DXGI Desktop Duplication)」から選択
   - GDI で真っ黒になる DirectX 全画面（ボーダーレス）アプリは Direct3D 方式で撮影できます
   - Direct3D 方式が使えない環境（リモートデスクトップ等）では自動的に GDI にフォールバックします
+- UI は日本語と英語に対応（Windows の表示言語に従う。設定で固定も可能）
 - 設定は `%APPDATA%\ffshot\settings.json` に保存
 
 ## 動作環境
@@ -110,6 +111,7 @@ git push origin main v0.2.0
 | マウスカーソルを含める | オフ |
 | 保存時に通知を表示する | オン |
 | Windows ログオン時に自動起動する | オフ |
+| 言語 | 自動（Windows の表示言語。日本語以外は英語） |
 
 撮影して保存すると、右下に通知が出ます（設定でオフにできます）。
 

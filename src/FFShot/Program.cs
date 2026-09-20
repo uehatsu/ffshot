@@ -1,4 +1,6 @@
 using FFShot.App;
+using FFShot.Resources;
+using FFShot.Settings;
 
 namespace FFShot;
 
@@ -9,10 +11,13 @@ internal static class Program
     [STAThread]
     private static void Main()
     {
+        // 多重起動ダイアログも設定言語で出すため、先に言語を適用する
+        LanguageSelector.Apply(new SettingsStore().Load().Language);
+
         using var mutex = new Mutex(initiallyOwned: true, MutexName, out var createdNew);
         if (!createdNew && !WaitForPreviousInstance(mutex))
         {
-            MessageBox.Show("ffshot は既に起動しています。", "ffshot",
+            MessageBox.Show(Strings.App_AlreadyRunning, "ffshot",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
@@ -20,7 +25,7 @@ internal static class Program
         ApplicationConfiguration.Initialize();
         Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
         Application.ThreadException += (_, e) =>
-            MessageBox.Show(e.Exception.ToString(), "ffshot - エラー", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(e.Exception.ToString(), Strings.App_ErrorTitle, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
         using var context = new TrayApplicationContext();
         Application.Run(context);

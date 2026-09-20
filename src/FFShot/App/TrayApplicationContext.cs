@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using FFShot.Capture;
 using FFShot.Hotkeys;
+using FFShot.Resources;
 using FFShot.Settings;
 using FFShot.UI;
 
@@ -25,12 +26,13 @@ internal sealed class TrayApplicationContext : ApplicationContext
     public TrayApplicationContext()
     {
         _settings = _store.Load();
+        LanguageSelector.Apply(_settings.Language);
         _icon = TrayIconFactory.CreateTrayIcon();
 
         _tray = new NotifyIcon
         {
             Icon = _icon,
-            Text = Elevation.IsElevated ? "ffshot（管理者）" : "ffshot（通常権限）",
+            Text = TrayText(),
             Visible = true,
             ContextMenuStrip = BuildMenu(),
         };
@@ -87,34 +89,45 @@ internal sealed class TrayApplicationContext : ApplicationContext
             var message = new StartupManager(Elevation.IsElevated).Apply(_settings.RunAtStartup);
             if (message is not null)
             {
-                _tray.ShowBalloonTip(8000, "ffshot - 自動起動", message, ToolTipIcon.Warning);
+                _tray.ShowBalloonTip(8000, Strings.Notify_StartupTitle, message, ToolTipIcon.Warning);
             }
         }
         catch (Exception ex) when (ex is System.Security.SecurityException or UnauthorizedAccessException or IOException or InvalidOperationException)
         {
-            _tray.ShowBalloonTip(8000, "ffshot - 自動起動の設定に失敗しました", ex.Message, ToolTipIcon.Warning);
+            _tray.ShowBalloonTip(8000, Strings.Notify_StartupFailedTitle, ex.Message, ToolTipIcon.Warning);
         }
+    }
+
+    private static string TrayText() => Elevation.IsElevated ? Strings.Tray_TextElevated : Strings.Tray_TextNormal;
+
+    /// <summary>言語変更後にトレイの文言とメニューを作り直す。</summary>
+    private void RefreshLocalizedUi()
+    {
+        _tray.Text = TrayText();
+        var old = _tray.ContextMenuStrip;
+        _tray.ContextMenuStrip = BuildMenu();
+        old?.Dispose();
     }
 
     private ContextMenuStrip BuildMenu()
     {
         var menu = new ContextMenuStrip();
-        menu.Items.Add("全画面を撮影(&F)", null, (_, _) => CaptureAfterMenuCloses(CaptureTarget.FullScreen));
-        menu.Items.Add("アクティブウィンドウを撮影(&A)", null, (_, _) => CaptureAfterMenuCloses(CaptureTarget.ActiveWindow));
+        menu.Items.Add(Strings.Menu_CaptureFullScreen, null, (_, _) => CaptureAfterMenuCloses(CaptureTarget.FullScreen));
+        menu.Items.Add(Strings.Menu_CaptureActiveWindow, null, (_, _) => CaptureAfterMenuCloses(CaptureTarget.ActiveWindow));
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("設定(&S)...", null, (_, _) => ShowSettings());
-        menu.Items.Add("保存先を開く(&O)", null, (_, _) => OpenSaveFolder());
+        menu.Items.Add(Strings.Menu_Settings, null, (_, _) => ShowSettings());
+        menu.Items.Add(Strings.Menu_OpenSaveFolder, null, (_, _) => OpenSaveFolder());
         menu.Items.Add(new ToolStripSeparator());
         if (!Elevation.IsElevated)
         {
-            var elevate = new ToolStripMenuItem("管理者として再起動(&R)", null, (_, _) => RestartElevated())
+            var elevate = new ToolStripMenuItem(Strings.Menu_RestartElevated, null, (_, _) => RestartElevated())
             {
-                ToolTipText = "管理者権限で動くアプリ（ゲームなど）が前面のときもホットキーを効かせます",
+                ToolTipText = Strings.Menu_RestartElevated_Tip,
             };
             menu.Items.Add(elevate);
             menu.Items.Add(new ToolStripSeparator());
         }
-        menu.Items.Add("終了(&X)", null, (_, _) => ExitThread());
+        menu.Items.Add(Strings.Menu_Exit, null, (_, _) => ExitThread());
         return menu;
     }
 
@@ -155,17 +168,18 @@ internal sealed class TrayApplicationContext : ApplicationContext
             var result = _capture.Capture(target, _settings);
             if (result.Warning is not null)
             {
-                _tray.ShowBalloonTip(5000, "ffshot - フォールバック", result.Warning, ToolTipIcon.Warning);
+                _tray.ShowBalloonTip(5000, Strings.Notify_FallbackTitle, result.Warning, ToolTipIcon.Warning);
             }
             else if (_settings.ShowNotification)
             {
-                _tray.ShowBalloonTip(2000, "ffshot - 保存しました",
-                    $"{Path.GetFileName(result.Path)}\n{result.Bounds.Width}x{result.Bounds.Height} ({result.BackendName})", ToolTipIcon.Info);
+                _tray.ShowBalloonTip(2000, Strings.Notify_SavedTitle,
+                    string.Format(Strings.Notify_SavedBody, Path.GetFileName(result.Path), result.Bounds.Width, result.Bounds.Height, result.BackendName),
+                    ToolTipIcon.Info);
             }
         }
         catch (Exception ex) when (ex is CaptureException or IOException or UnauthorizedAccessException)
         {
-            _tray.ShowBalloonTip(5000, "ffshot - 撮影に失敗しました", ex.Message, ToolTipIcon.Error);
+            _tray.ShowBalloonTip(5000, Strings.Notify_CaptureFailedTitle, ex.Message, ToolTipIcon.Error);
         }
         finally
         {
@@ -205,6 +219,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
             {
                 _settings = _settingsForm.Result;
                 _store.Save(_settings);
+                LanguageSelector.Apply(_settings.Language);
+                RefreshLocalizedUi();
                 ApplyStartupRegistration();
             }
         }
@@ -215,13 +231,13 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private void ApplyHotkeys()
     {
         var failed = new List<string>();
-        RegisterOrReport(HotkeyIdFullScreen, _settings.HotkeyFullScreen, "全画面", failed);
-        RegisterOrReport(HotkeyIdActiveWindow, _settings.HotkeyActiveWindow, "アクティブウィンドウ", failed);
+        RegisterOrReport(HotkeyIdFullScreen, _settings.HotkeyFullScreen, Strings.Target_FullScreen, failed);
+        RegisterOrReport(HotkeyIdActiveWindow, _settings.HotkeyActiveWindow, Strings.Target_ActiveWindow, failed);
 
         if (failed.Count > 0)
         {
-            _tray.ShowBalloonTip(5000, "ffshot - ホットキーを登録できません",
-                string.Join("\n", failed) + "\n他のアプリと競合していないか確認してください。", ToolTipIcon.Warning);
+            _tray.ShowBalloonTip(5000, Strings.Notify_HotkeyFailedTitle,
+                string.Join("\n", failed) + "\n" + Strings.Notify_HotkeyFailedHint, ToolTipIcon.Warning);
         }
     }
 

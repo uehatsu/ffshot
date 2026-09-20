@@ -24,6 +24,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <InvariantGlobalization>false</InvariantGlobalization>
     <SatelliteResourceLanguages>ja;en</SatelliteResourceLanguages>
+    <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
   <!-- dotnet publish 用: ランタイム同梱の単一 exe -->

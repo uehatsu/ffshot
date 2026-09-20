@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Security;
 using System.Security.Principal;
 using System.Text;
+using FFShot.Resources;
 
 namespace FFShot.App;
 
@@ -44,7 +45,7 @@ internal sealed class StartupTask
             var (code, output) = RunSchtasks("/Create", "/TN", _taskName, "/XML", xmlPath, "/F");
             if (code != 0)
             {
-                throw new InvalidOperationException($"タスクの登録に失敗しました (schtasks exit {code}): {output.Trim()}");
+                throw new InvalidOperationException(string.Format(Strings.Startup_TaskCreateFailed, code, output.Trim()));
             }
         }
         finally
@@ -58,7 +59,7 @@ internal sealed class StartupTask
         var (code, output) = RunSchtasks("/Delete", "/TN", _taskName, "/F");
         if (code != 0 && Exists())
         {
-            throw new InvalidOperationException($"タスクの削除に失敗しました (schtasks exit {code}): {output.Trim()}");
+            throw new InvalidOperationException(string.Format(Strings.Startup_TaskDeleteFailed, code, output.Trim()));
         }
     }
 
@@ -69,12 +70,13 @@ internal sealed class StartupTask
         var exe = SecurityElement.Escape(_exePath);
         var dir = SecurityElement.Escape(Path.GetDirectoryName(_exePath) ?? string.Empty);
         var runLevel = _highest ? "HighestAvailable" : "LeastPrivilege";
+        var description = SecurityElement.Escape(Strings.Startup_TaskDescription);
 
         return $"""
             <?xml version="1.0" encoding="UTF-16"?>
             <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
               <RegistrationInfo>
-                <Description>ffshot をログオン時に起動します</Description>
+                <Description>{description}</Description>
               </RegistrationInfo>
               <Triggers>
                 <LogonTrigger>
@@ -132,7 +134,7 @@ internal sealed class StartupTask
             psi.ArgumentList.Add(a);
         }
 
-        using var p = Process.Start(psi) ?? throw new InvalidOperationException("schtasks.exe を起動できません。");
+        using var p = Process.Start(psi) ?? throw new InvalidOperationException(Strings.Startup_SchtasksMissing);
         var stdout = p.StandardOutput.ReadToEnd();
         var stderr = p.StandardError.ReadToEnd();
         p.WaitForExit();

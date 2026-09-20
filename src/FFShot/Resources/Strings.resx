@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="App_AlreadyRunning" xml:space="preserve">
+    <value>ffshot is already running.</value>
+  </data>
+  <data name="App_ErrorTitle" xml:space="preserve">
+    <value>ffshot - Error</value>
+  </data>
+  <data name="Tray_TextElevated" xml:space="preserve">
+    <value>ffshot (administrator)</value>
+  </data>
+  <data name="Tray_TextNormal" xml:space="preserve">
+    <value>ffshot (normal user)</value>
+  </data>
+  <data name="Menu_CaptureFullScreen" xml:space="preserve">
+    <value>Capture &amp;full screen</value>
+  </data>
+  <data name="Menu_CaptureActiveWindow" xml:space="preserve">
+    <value>Capture &amp;active window</value>
+  </data>
+  <data name="Menu_Settings" xml:space="preserve">
+    <value>&amp;Settings...</value>
+  </data>
+  <data name="Menu_OpenSaveFolder" xml:space="preserve">
+    <value>&amp;Open save folder</value>
+  </data>
+  <data name="Menu_RestartElevated" xml:space="preserve">
+    <value>&amp;Restart as administrator</value>
+  </data>
+  <data name="Menu_RestartElevated_Tip" xml:space="preserve">
+    <value>Makes hotkeys work while an app running as administrator (e.g. a game) is in the foreground</value>
+  </data>
+  <data name="Menu_Exit" xml:space="preserve">
+    <value>E&amp;xit</value>
+  </data>
+  <data name="Notify_FallbackTitle" xml:space="preserve">
+    <value>ffshot - Fallback</value>
+  </data>
+  <data name="Notify_SavedTitle" xml:space="preserve">
+    <value>ffshot - Saved</value>
+  </data>
+  <data name="Notify_SavedBody" xml:space="preserve">
+    <value>{0}
+{1}x{2} ({3})</value>
+  </data>
+  <data name="Notify_CaptureFailedTitle" xml:space="preserve">
+    <value>ffshot - Capture failed</value>
+  </data>
+  <data name="Notify_HotkeyFailedTitle" xml:space="preserve">
+    <value>ffshot - Could not register hotkeys</value>
+  </data>
+  <data name="Notify_HotkeyFailedHint" xml:space="preserve">
+    <value>Check whether another app uses the same key.</value>
+  </data>
+  <data name="Target_FullScreen" xml:space="preserve">
+    <value>Full screen</value>
+  </data>
+  <data name="Target_ActiveWindow" xml:space="preserve">
+    <value>Active window</value>
+  </data>
+  <data name="Notify_StartupTitle" xml:space="preserve">
+    <value>ffshot - Autostart</value>
+  </data>
+  <data name="Notify_StartupFailedTitle" xml:space="preserve">
+    <value>ffshot - Could not configure autostart</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>ffshot Settings</value>
+  </data>
+  <data name="Settings_HotkeyFullScreen" xml:space="preserve">
+    <value>Full-screen hotkey</value>
+  </data>
+  <data name="Settings_HotkeyActiveWindow" xml:space="preserve">
+    <value>Active-window hotkey</value>
+  </data>
+  <data name="Settings_Backend" xml:space="preserve">
+    <value>Capture method</value>
+  </data>
+  <data name="Settings_Backend_Gdi" xml:space="preserve">
+    <value>Normal (GDI)</value>
+  </data>
+  <data name="Settings_Backend_Direct3D" xml:space="preserve">
+    <value>DirectX (Direct3D / Desktop Duplication)</value>
+  </data>
+  <data name="Settings_SaveFolder" xml:space="preserve">
+    <value>Save folder</value>
+  </data>
+  <data name="Settings_Browse" xml:space="preserve">
+    <value>Browse...</value>
+  </data>
+  <data name="Settings_FileNamePattern" xml:space="preserve">
+    <value>File name pattern</value>
+  </data>
+  <data name="Settings_FileNameHint" xml:space="preserve">
+    <value>Write a date/time format inside { }, e.g. {yyyyMMdd_HHmmss}. The .png extension is added automatically.</value>
+  </data>
+  <data name="Settings_AllMonitors" xml:space="preserve">
+    <value>Combine all monitors for full-screen capture</value>
+  </data>
+  <data name="Settings_IncludeCursor" xml:space="preserve">
+    <value>Include the mouse cursor</value>
+  </data>
+  <data name="Settings_ShowNotification" xml:space="preserve">
+    <value>Show a notification after saving</value>
+  </data>
+  <data name="Settings_RunAtStartup" xml:space="preserve">
+    <value>Start automatically at Windows logon</value>
+  </data>
+  <data name="Settings_StartupHintElevated" xml:space="preserve">
+    <value>Running as administrator: registers a Task Scheduler task that starts ffshot with administrator rights at logon.</value>
+  </data>
+  <data name="Settings_StartupHintNormal" xml:space="preserve">
+    <value>Running as a normal user: registers a Run key and starts with normal rights.
+To make hotkeys work in apps running as administrator (e.g. games), choose "Restart as administrator" in the tray menu first, then enable this.</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Settings_Language_Auto" xml:space="preserve">
+    <value>Auto (Windows display language)</value>
+  </data>
+  <data name="Settings_Language_Japanese" xml:space="preserve">
+    <value>日本語</value>
+  </data>
+  <data name="Settings_Language_English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Settings_LanguageHint" xml:space="preserve">
+    <value>Applies to the tray menu and notifications immediately; this dialog uses it the next time it opens.</value>
+  </data>
+  <data name="Settings_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Settings_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Settings_FolderDialogTitle" xml:space="preserve">
+    <value>Screenshot save folder</value>
+  </data>
+  <data name="Hotkey_Placeholder" xml:space="preserve">
+    <value>Press a key combination (Backspace to clear)</value>
+  </data>
+  <data name="Capture_FallbackWarning" xml:space="preserve">
+    <value>Capture with {0} failed, so GDI was used instead.
+{1}</value>
+  </data>
+  <data name="Capture_EmptyRegion" xml:space="preserve">
+    <value>The capture area is empty.</value>
+  </data>
+  <data name="Capture_GdiFailed" xml:space="preserve">
+    <value>GDI capture failed: {0}</value>
+  </data>
+  <data name="Capture_D3DFailed" xml:space="preserve">
+    <value>Direct3D capture failed: {0}</value>
+  </data>
+  <data name="Capture_NoOutput" xml:space="preserve">
+    <value>No display output covers the capture area.</value>
+  </data>
+  <data name="Capture_RotatedUnsupported" xml:space="preserve">
+    <value>Rotated displays are not supported by Direct3D capture.</value>
+  </data>
+  <data name="Capture_FormatUnsupported" xml:space="preserve">
+    <value>Unsupported desktop format: {0} (use GDI if HDR is enabled)</value>
+  </data>
+  <data name="Capture_DDUnsupported" xml:space="preserve">
+    <value>Desktop Duplication is not available in this environment (remote session or some virtual machines).</value>
+  </data>
+  <data name="Capture_DDNotAvailable" xml:space="preserve">
+    <value>The maximum number of Desktop Duplication sessions has been reached.</value>
+  </data>
+  <data name="Capture_DDAccessLost" xml:space="preserve">
+    <value>Access to the desktop was lost (e.g. during a mode change). Please try again.</value>
+  </data>
+  <data name="Capture_DDTimeout" xml:space="preserve">
+    <value>Timed out waiting for a frame from Desktop Duplication.</value>
+  </data>
+  <data name="Startup_TaskDescription" xml:space="preserve">
+    <value>Starts ffshot at logon</value>
+  </data>
+  <data name="Startup_TaskCreateFailed" xml:space="preserve">
+    <value>Failed to register the task (schtasks exit {0}): {1}</value>
+  </data>
+  <data name="Startup_TaskDeleteFailed" xml:space="preserve">
+    <value>Failed to delete the task (schtasks exit {0}): {1}</value>
+  </data>
+  <data name="Startup_SchtasksMissing" xml:space="preserve">
+    <value>Could not start schtasks.exe.</value>
+  </data>
+  <data name="Startup_CannotDeleteElevatedTask" xml:space="preserve">
+    <value>The autostart task registered with administrator rights could not be removed.
+Choose "Restart as administrator" and then turn off autostart.
+{0}</value>
+  </data>
+</root>

@@ -1,4 +1,5 @@
 using FFShot.Hotkeys;
+using FFShot.Resources;
 using FFShot.Settings;
 
 namespace FFShot.UI;
@@ -10,10 +11,11 @@ internal sealed class SettingsForm : Form
     private readonly ComboBox _backend = new() { DropDownStyle = ComboBoxStyle.DropDownList };
     private readonly TextBox _folder = new();
     private readonly TextBox _pattern = new();
-    private readonly CheckBox _allMonitors = new() { Text = "全画面撮影で全モニターを結合する", AutoSize = true };
-    private readonly CheckBox _cursor = new() { Text = "マウスカーソルを含める", AutoSize = true };
-    private readonly CheckBox _notify = new() { Text = "保存時に通知を表示する", AutoSize = true };
-    private readonly CheckBox _startup = new() { Text = "Windows ログオン時に自動起動する", AutoSize = true };
+    private readonly ComboBox _language = new() { DropDownStyle = ComboBoxStyle.DropDownList };
+    private readonly CheckBox _allMonitors = new() { Text = Strings.Settings_AllMonitors, AutoSize = true };
+    private readonly CheckBox _cursor = new() { Text = Strings.Settings_IncludeCursor, AutoSize = true };
+    private readonly CheckBox _notify = new() { Text = Strings.Settings_ShowNotification, AutoSize = true };
+    private readonly CheckBox _startup = new() { Text = Strings.Settings_RunAtStartup, AutoSize = true };
 
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
     [System.ComponentModel.Browsable(false)]
@@ -23,7 +25,7 @@ internal sealed class SettingsForm : Form
     {
         Result = current.Clone();
 
-        Text = "ffshot 設定";
+        Text = Strings.Settings_Title;
         Icon = App.TrayIconFactory.CreateWindowIcon();
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -31,10 +33,11 @@ internal sealed class SettingsForm : Form
         MinimizeBox = false;
         ShowInTaskbar = false;
         AutoScaleMode = AutoScaleMode.Dpi;
-        ClientSize = new Size(480, 470);
+        ClientSize = new Size(500, 540);
         Font = new Font("Yu Gothic UI", 9f);
 
-        _backend.Items.AddRange(["通常 (GDI)", "DirectX (Direct3D / Desktop Duplication)"]);
+        _backend.Items.AddRange([Strings.Settings_Backend_Gdi, Strings.Settings_Backend_Direct3D]);
+        _language.Items.AddRange([Strings.Settings_Language_Auto, Strings.Settings_Language_Japanese, Strings.Settings_Language_English]);
 
         var grid = new TableLayoutPanel
         {
@@ -48,18 +51,19 @@ internal sealed class SettingsForm : Form
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
 
         var row = 0;
-        AddRow(grid, row++, "全画面のホットキー", _hkFull);
-        AddRow(grid, row++, "アクティブウィンドウのホットキー", _hkActive);
-        AddRow(grid, row++, "取得方式", _backend);
+        AddRow(grid, row++, Strings.Settings_HotkeyFullScreen, _hkFull);
+        AddRow(grid, row++, Strings.Settings_HotkeyActiveWindow, _hkActive);
+        AddRow(grid, row++, Strings.Settings_Backend, _backend);
 
-        var browse = new Button { Text = "参照...", AutoSize = true };
+        var browse = new Button { Text = Strings.Settings_Browse, AutoSize = true };
         browse.Click += (_, _) => BrowseFolder();
-        AddRow(grid, row++, "保存先フォルダ", _folder, browse);
-        AddRow(grid, row++, "ファイル名パターン", _pattern);
+        AddRow(grid, row++, Strings.Settings_SaveFolder, _folder, browse);
+        AddRow(grid, row++, Strings.Settings_FileNamePattern, _pattern);
         var hint = new Label
         {
-            Text = "{yyyyMMdd_HHmmss} のように { } 内に日時書式を書けます。拡張子 .png は自動付与。",
+            Text = Strings.Settings_FileNameHint,
             AutoSize = true,
+            MaximumSize = new Size(450, 0),
             ForeColor = SystemColors.GrayText,
             Margin = new Padding(3, 0, 3, 8),
         };
@@ -76,12 +80,9 @@ internal sealed class SettingsForm : Form
 
         var startupHint = new Label
         {
-            Text = App.Elevation.IsElevated
-                ? "管理者権限で動作中: タスクスケジューラに登録し、ログオン時に管理者権限で起動します。"
-                : "通常権限で動作中: Run キーに登録し、通常権限で起動します。\n" +
-                  "管理者権限のアプリ（ゲームなど）でもホットキーを効かせるには、先にトレイメニューの「管理者として再起動」を行ってから設定してください。",
+            Text = App.Elevation.IsElevated ? Strings.Settings_StartupHintElevated : Strings.Settings_StartupHintNormal,
             AutoSize = true,
-            MaximumSize = new Size(430, 0),
+            MaximumSize = new Size(450, 0),
             ForeColor = SystemColors.GrayText,
             Margin = new Padding(20, 0, 3, 8),
         };
@@ -89,8 +90,21 @@ internal sealed class SettingsForm : Form
         grid.SetColumnSpan(startupHint, 2);
         row++;
 
-        var ok = new Button { Text = "OK", DialogResult = DialogResult.OK, AutoSize = true };
-        var cancel = new Button { Text = "キャンセル", DialogResult = DialogResult.Cancel, AutoSize = true };
+        AddRow(grid, row++, Strings.Settings_Language, _language);
+        var languageHint = new Label
+        {
+            Text = Strings.Settings_LanguageHint,
+            AutoSize = true,
+            MaximumSize = new Size(450, 0),
+            ForeColor = SystemColors.GrayText,
+            Margin = new Padding(3, 0, 3, 8),
+        };
+        grid.Controls.Add(languageHint, 1, row);
+        grid.SetColumnSpan(languageHint, 2);
+        row++;
+
+        var ok = new Button { Text = Strings.Settings_OK, DialogResult = DialogResult.OK, AutoSize = true };
+        var cancel = new Button { Text = Strings.Settings_Cancel, DialogResult = DialogResult.Cancel, AutoSize = true };
         ok.Click += (_, _) => Apply();
         var buttons = new FlowLayoutPanel
         {
@@ -108,6 +122,11 @@ internal sealed class SettingsForm : Form
         CancelButton = cancel;
 
         LoadFrom(current);
+
+        // 言語によって文言の行数が変わるので、高さは内容に合わせて決める
+        PerformLayout();
+        var gridHeight = grid.GetPreferredSize(new Size(ClientSize.Width, 0)).Height;
+        ClientSize = new Size(ClientSize.Width, gridHeight + buttons.Height);
     }
 
     private static void AddRow(TableLayoutPanel grid, int row, string label, Control input, Control? extra = null)
@@ -136,6 +155,7 @@ internal sealed class SettingsForm : Form
         _cursor.Checked = s.IncludeCursor;
         _notify.Checked = s.ShowNotification;
         _startup.Checked = s.RunAtStartup;
+        _language.SelectedIndex = (int)s.Language;
     }
 
     private void Apply()
@@ -151,6 +171,7 @@ internal sealed class SettingsForm : Form
             IncludeCursor = _cursor.Checked,
             ShowNotification = _notify.Checked,
             RunAtStartup = _startup.Checked,
+            Language = (UiLanguage)Math.Max(0, _language.SelectedIndex),
         };
     }
 
@@ -158,7 +179,7 @@ internal sealed class SettingsForm : Form
     {
         using var dlg = new FolderBrowserDialog
         {
-            Description = "スクリーンショットの保存先",
+            Description = Strings.Settings_FolderDialogTitle,
             UseDescriptionForTitle = true,
             SelectedPath = Environment.ExpandEnvironmentVariables(_folder.Text),
         };

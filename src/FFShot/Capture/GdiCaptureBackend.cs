@@ -1,6 +1,7 @@
 using System.Drawing.Imaging;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using FFShot.Resources;
 
 namespace FFShot.Capture;
 
@@ -13,7 +14,7 @@ internal sealed class GdiCaptureBackend : ICaptureBackend
     {
         if (screenBounds.Width <= 0 || screenBounds.Height <= 0)
         {
-            throw new CaptureException("撮影範囲が空です。");
+            throw new CaptureException(Strings.Capture_EmptyRegion);
         }
 
         var bmp = new Bitmap(screenBounds.Width, screenBounds.Height, PixelFormat.Format32bppArgb);
@@ -26,7 +27,7 @@ internal sealed class GdiCaptureBackend : ICaptureBackend
         catch (Exception ex) when (ex is Win32Exception or ExternalException)
         {
             bmp.Dispose();
-            throw new CaptureException($"GDI キャプチャに失敗しました: {ex.Message}", ex);
+            throw new CaptureException(string.Format(Strings.Capture_GdiFailed, ex.Message), ex);
         }
     }
 

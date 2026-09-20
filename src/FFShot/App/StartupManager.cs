@@ -1,3 +1,5 @@
+using FFShot.Resources;
+
 namespace FFShot.App;
 
 /// <summary>
@@ -31,8 +33,7 @@ internal sealed class StartupManager
                 }
                 catch (InvalidOperationException ex)
                 {
-                    return "管理者権限で登録された自動起動タスクを削除できませんでした。\n" +
-                           "「管理者として再起動」してから自動起動をオフにしてください。\n" + ex.Message;
+                    return string.Format(Strings.Startup_CannotDeleteElevatedTask, ex.Message);
                 }
             }
             return null;

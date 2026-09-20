@@ -1,4 +1,5 @@
 using FFShot.Hotkeys;
+using FFShot.Resources;
 
 namespace FFShot.UI;
 
@@ -12,7 +13,7 @@ internal sealed class HotkeyTextBox : TextBox
         ReadOnly = true;
         BackColor = SystemColors.Window;
         ShortcutsEnabled = false;
-        PlaceholderText = "キーを押してください (Backspace で解除)";
+        PlaceholderText = Strings.Hotkey_Placeholder;
     }
 
     [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]

@@ -8,8 +8,17 @@ public enum CaptureBackendKind
     Direct3D,
 }
 
+public enum UiLanguage
+{
+    /// <summary>Windows の表示言語に従う。</summary>
+    Auto,
+    Japanese,
+    English,
+}
+
 public sealed class AppSettings
 {
+    public UiLanguage Language { get; set; } = UiLanguage.Auto;
     public string HotkeyFullScreen { get; set; } = "Ctrl+Shift+F12";
     public string HotkeyActiveWindow { get; set; } = "Ctrl+Shift+F11";
     public CaptureBackendKind Backend { get; set; } = CaptureBackendKind.Gdi;

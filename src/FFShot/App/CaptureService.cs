@@ -1,5 +1,6 @@
 using FFShot.Capture;
 using FFShot.Output;
+using FFShot.Resources;
 using FFShot.Settings;
 
 namespace FFShot.App;
@@ -27,7 +28,7 @@ internal sealed class CaptureService : IDisposable
         }
         catch (CaptureException ex) when (settings.Backend != CaptureBackendKind.Gdi)
         {
-            warning = $"{settings.Backend} での取得に失敗したため GDI で撮影しました。\n{ex.Message}";
+            warning = string.Format(Strings.Capture_FallbackWarning, settings.Backend, ex.Message);
             bitmap = _gdi.Capture(bounds);
             backendName = _gdi.Name;
         }
