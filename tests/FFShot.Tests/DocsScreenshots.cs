@@ -1,4 +1,3 @@
-using FFShot.App;
 using FFShot.Capture;
 using FFShot.Settings;
 using FFShot.UI;
@@ -83,30 +82,6 @@ public class DocsScreenshots
         });
     }
 
-    [Fact]
-    public void Notification()
-    {
-        if (!Enabled) return;
-
-        RunSta(() =>
-        {
-            using var icon = TrayIconFactory.CreateTrayIcon();
-            using var tray = new NotifyIcon { Icon = icon, Text = "ffshot", Visible = true };
-            Pump(300);
-            tray.ShowBalloonTip(4000, "ffshot - 保存しました", "ffshot_20260921_120000.png\n3840x2160 (Direct3D)", ToolTipIcon.Info);
-            Pump(1500);
-
-            // Windows 11 のトースト通知は作業領域の右下に出る（余白込みで切り出す）
-            var wa = Screen.PrimaryScreen!.WorkingArea;
-            var scale = wa.Width / 1920f;
-            var w = (int)(200 * scale);
-            var h = (int)(80 * scale);
-            var bounds = new Rectangle(wa.Right - w, wa.Bottom - h, w, h);
-            using var backend = new GdiCaptureBackend();
-            using var bmp = backend.Capture(bounds);
-            var path = Path.Combine(DocsDir(), "notification.png");
-            bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
-            tray.Visible = false;
-        });
-    }
+    // 通知バルーン (docs/notification.png) はテストプロセスから出すとアプリ名が testhost になるため、
+    // 本物の ffshot.exe を起動してホットキーを送り、作業領域の右下を切り出して撮る。
 }

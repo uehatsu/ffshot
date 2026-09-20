@@ -111,6 +111,10 @@ The settings dialog lets you change the following. (The UI is in Japanese.)
 | Show a notification after saving | On |
 | Start automatically at Windows logon | Off |
 
+After a capture is saved, a notification appears at the bottom right (it can be turned off in the settings).
+
+<img src="docs/notification.png" width="420" alt="Notification after saving">
+
 Inside `{ }` in the file name pattern you can use .NET date/time format strings. `{target}` expands to `full` or `window`. If a file with the same name exists, `_1`, `_2`, ... is appended.
 
 In the hotkey box, the key combination you press is taken as-is. Backspace clears it. If the hotkey cannot be registered because another app already uses it, a tray notification tells you.
