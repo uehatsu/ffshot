@@ -94,7 +94,7 @@ Tests that capture the real screen (`Category=Screen`) do not work on the runner
 
 When started, a fox icon appears in the tray. Left-click or right-click opens the menu; double-click opens the settings dialog. The menu has "Capture full screen", "Capture active window", "Settings...", "Open save folder", "Restart as administrator" and "Exit". "Restart as administrator" appears only while running as a normal user; it is hidden when already elevated.
 
-<img src="docs/doc_02.png" width="415" alt="Fox icon in the tray and its menu (running as a normal user)">
+<img src="docs/tray-menu_en.png" width="415" alt="Fox icon in the tray and its menu (running as a normal user)">
 
 The settings dialog lets you change the following.
 
