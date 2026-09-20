@@ -1,13 +1,13 @@
 <p align="center">
-  <img src="docs/icon.png" width="160" height="160" alt="First Fox Screenshot (ffshot) のアイコン">
+  <img src="docs/icon.png" width="160" height="160" alt="First Fox Screenshot（ffshot、一番狐）のアイコン">
 </p>
 
-# First Fox Screenshot (ffshot)
+# First Fox Screenshot（ffshot、一番狐）
 
 [![Latest release](https://img.shields.io/github/v/release/uehatsu/ffshot?label=release)](https://github.com/uehatsu/ffshot/releases/latest)
 [![CI](https://github.com/uehatsu/ffshot/actions/workflows/ci.yml/badge.svg)](https://github.com/uehatsu/ffshot/actions/workflows/ci.yml)
 
-First Fox Screenshot (ffshot) は、タスクトレイに常駐し、ホットキーで PNG スクリーンショットを保存する Windows アプリです。
+First Fox Screenshot（ffshot、一番狐）は、タスクトレイに常駐し、ホットキーで PNG スクリーンショットを保存する Windows アプリです。
 
 - 全画面 / アクティブウィンドウをそれぞれ別のホットキーで撮影
 - 取得方式を「通常 (GDI)」と「DirectX (Direct3D / DXGI Desktop Duplication)」から選択
