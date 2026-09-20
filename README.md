@@ -78,7 +78,7 @@ WSL から Windows 側の SDK を使う場合は `"/mnt/c/Program Files/dotnet/d
 ### CI / リリース
 
 - push / PR ごとに GitHub Actions（`ci.yml`）がビルド・テスト・publish を行い、exe を Actions の成果物として添付します。
-- `v1.2.3` のようなタグを push すると `release.yml` が self-contained の exe を zip にし、`SHA256SUMS.txt` とともに GitHub Release へ添付します。リリースノートはコミット履歴から自動生成されます。
+- `v1.2.3` のようなタグを push すると `release.yml` が self-contained の exe と `README.txt`（日英の簡単な案内）を zip にし、`SHA256SUMS.txt` とともに GitHub Release へ添付します。リリースノートはコミット履歴から自動生成されます。
 - リリース前に `src/FFShot/FFShot.csproj` の `<Version>` をタグと同じ値に上げてください。食い違っているとワークフローが失敗します。
 
 ```powershell

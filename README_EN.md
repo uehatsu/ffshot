@@ -78,7 +78,7 @@ From WSL, call the Windows SDK as `"/mnt/c/Program Files/dotnet/dotnet.exe"`.
 ### CI / Releases
 
 - On every push and pull request, GitHub Actions (`ci.yml`) builds, tests, publishes, and attaches the exe as a workflow artifact.
-- Pushing a tag like `v1.2.3` runs `release.yml`, which zips the self-contained exe and attaches it to a GitHub Release together with `SHA256SUMS.txt`. Release notes are generated from the commit history.
+- Pushing a tag like `v1.2.3` runs `release.yml`, which zips the self-contained exe and `README.txt` (a short guide in Japanese and English) and attaches it to a GitHub Release together with `SHA256SUMS.txt`. Release notes are generated from the commit history.
 - Before releasing, set `<Version>` in `src/FFShot/FFShot.csproj` to the same value as the tag. The workflow fails if they differ.
 
 ```powershell

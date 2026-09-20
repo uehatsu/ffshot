@@ -46,7 +46,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force dist | Out-Null
-          Copy-Item README.md publish/win-x64/
+          Copy-Item README.txt publish/win-x64/
           Compress-Archive -Path publish/win-x64/* -DestinationPath "dist/ffshot-${{ steps.ver.outputs.version }}-win-x64.zip"
           Get-FileHash dist/*.zip -Algorithm SHA256 | ForEach-Object { "$($_.Hash)  $(Split-Path $_.Path -Leaf)" } | Set-Content dist/SHA256SUMS.txt
 
