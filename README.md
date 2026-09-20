@@ -4,6 +4,9 @@
 
 # First Fox Screenshot (ffshot)
 
+[![Latest release](https://img.shields.io/github/v/release/uehatsu/ffshot?label=release)](https://github.com/uehatsu/ffshot/releases/latest)
+[![CI](https://github.com/uehatsu/ffshot/actions/workflows/ci.yml/badge.svg)](https://github.com/uehatsu/ffshot/actions/workflows/ci.yml)
+
 First Fox Screenshot (ffshot) は、タスクトレイに常駐し、ホットキーで PNG スクリーンショットを保存する Windows アプリです。
 
 - 全画面 / アクティブウィンドウをそれぞれ別のホットキーで撮影
@@ -14,10 +17,46 @@ First Fox Screenshot (ffshot) は、タスクトレイに常駐し、ホット�
 
 ## 動作環境
 
-- Windows 10 1809 以降 / Windows 11
-- .NET 10 ランタイム（ビルドには .NET 10 SDK）
+- Windows 10 1809 以降 / Windows 11（64 bit）
+- 配布版は .NET ランタイム同梱のため、追加のインストールは不要です
 
-## ビルド・実行
+## インストール
+
+インストーラーはありません。zip を展開して exe を置くだけで動きます。
+
+1. [Releases](https://github.com/uehatsu/ffshot/releases/latest) を開き、Assets から `ffshot-<バージョン>-win-x64.zip` をダウンロードします。
+   例: v0.1.0 なら `ffshot-0.1.0-win-x64.zip`
+2. zip を右クリック → 「すべて展開」で任意のフォルダに展開します。
+   例: `C:\Users\<ユーザー名>\Apps\ffshot`
+   `Program Files` 配下は書き込みに管理者権限が要るため避けてください。
+3. 展開した `ffshot.exe` をダブルクリックします。
+   コード署名をしていないため、初回は SmartScreen の警告「Windows によって PC が保護されました」が出ることがあります。「詳細情報」→「実行」で起動できます。
+4. タスクトレイにキツネのアイコンが出れば起動完了です。既定では `Ctrl+Shift+F12` で全画面、`Ctrl+Shift+F11` でアクティブウィンドウを撮影し、`ピクチャ\ffshot` に保存します。
+
+### zip の検証（任意）
+
+Release には `SHA256SUMS.txt` も添付しています。PowerShell で照合できます。
+
+```powershell
+Get-FileHash .\ffshot-0.1.0-win-x64.zip -Algorithm SHA256
+Get-Content .\SHA256SUMS.txt
+```
+
+### 更新
+
+新しい zip を展開し、`ffshot.exe` を上書きしてください。トレイの「終了」でアプリを止めてから上書きします。設定は `%APPDATA%\ffshot\settings.json` にあるので引き継がれます。
+
+### アンインストール
+
+1. 「Windows ログオン時に自動起動する」をオンにしていた場合は、設定画面でオフにして OK を押します（Run キーまたはタスクスケジューラの登録が削除されます）。
+2. トレイメニューの「終了」でアプリを止め、展開したフォルダを削除します。
+3. 設定も消す場合は `%APPDATA%\ffshot` フォルダを削除します。
+
+## 開発
+
+### ビルド・実行
+
+.NET 10 SDK が必要です。
 
 ```powershell
 dotnet build ffshot.sln
@@ -31,27 +70,23 @@ dotnet test ffshot.sln
 dotnet publish src/FFShot -c Release -r win-x64 -o publish
 ```
 
-## ダウンロード
-
-[Releases](https://github.com/uehatsu/ffshot/releases) から `ffshot-<version>-win-x64.zip` を取得し、展開した `ffshot.exe` を実行してください。ランタイムのインストールは不要です。コード署名をしていないため、初回起動時に SmartScreen の警告が出る場合があります。「詳細情報」→「実行」で起動できます。
+WSL から Windows 側の SDK を使う場合は `"/mnt/c/Program Files/dotnet/dotnet.exe"` を呼びます。
 
 ### CI / リリース
 
 - push / PR ごとに GitHub Actions（`ci.yml`）がビルド・テスト・publish を行い、exe を Actions の成果物として添付します。
-- `v1.2.3` のようなタグを push すると `release.yml` が zip と SHA256 を GitHub Release に添付します。
+- `v1.2.3` のようなタグを push すると `release.yml` が self-contained の exe を zip にし、`SHA256SUMS.txt` とともに GitHub Release へ添付します。リリースノートはコミット履歴から自動生成されます。
 
 ```powershell
-git tag v0.1.0
-git push origin v0.1.0
+git tag -a v0.2.0 -m "v0.2.0"
+git push origin v0.2.0
 ```
 
 画面を実際に撮るテスト（`Category=Screen`）はランナーの仮想ディスプレイでは動かないため CI では除外しています。ローカルでは `dotnet test` で全件実行されます。
 
-WSL から Windows 側の SDK を使う場合は `"/mnt/c/Program Files/dotnet/dotnet.exe"` を呼びます。
-
 ## 使い方
 
-起動するとトレイにカメラアイコンが出ます。ダブルクリックまたは右クリック → 「設定...」で以下を変更できます。
+起動するとトレイにキツネのアイコンが出ます。ダブルクリックまたは右クリック → 「設定...」で以下を変更できます。
 
 | 項目 | 既定値 |
 |---|---|
