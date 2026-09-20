@@ -52,11 +52,7 @@ internal sealed class CaptureService : IDisposable
         return _gdi;
     }
 
-    private static ICaptureBackend CreateDirect3DBackend()
-    {
-        // Phase 4 で Desktop Duplication 実装に差し替える
-        throw new CaptureException("Direct3D バックエンドは未実装です。");
-    }
+    private static ICaptureBackend CreateDirect3DBackend() => new DesktopDuplicationBackend();
 
     public void Dispose()
     {
