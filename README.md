@@ -1,10 +1,10 @@
 <p align="center">
-  <img src="docs/icon.png" width="160" height="160" alt="ffshot のアイコン">
+  <img src="docs/icon.png" width="160" height="160" alt="First Fox Screenshot (ffshot) のアイコン">
 </p>
 
-# ffshot
+# First Fox Screenshot (ffshot)
 
-タスクトレイに常駐し、ホットキーで PNG スクリーンショットを保存する Windows アプリです。
+First Fox Screenshot (ffshot) は、タスクトレイに常駐し、ホットキーで PNG スクリーンショットを保存する Windows アプリです。
 
 - 全画面 / アクティブウィンドウをそれぞれ別のホットキーで撮影
 - 取得方式を「通常 (GDI)」と「DirectX (Direct3D / DXGI Desktop Duplication)」から選択
@@ -75,7 +75,7 @@ Windows の UIPI により、通常権限のアプリが登録したホットキ
 
 自動起動の登録先は権限に応じて切り替わります。
 
-| ffshot の権限 | 登録先 | ログオン時の起動 |
+| First Fox Screenshot (ffshot) の権限 | 登録先 | ログオン時の起動 |
 |---|---|---|
 | 通常権限 | `HKCU\...\Run` | 通常権限 |
 | 管理者 | タスクスケジューラ（タスク名 `ffshot`、最上位の特権） | 管理者権限、UAC なし |
