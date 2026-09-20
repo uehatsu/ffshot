@@ -4,6 +4,8 @@
 
 # First Fox Screenshot（ffshot、一番狐）
 
+[English README is here / 英語版 README](README_EN.md)
+
 [![Latest release](https://img.shields.io/github/v/release/uehatsu/ffshot?label=release)](https://github.com/uehatsu/ffshot/releases/latest)
 [![CI](https://github.com/uehatsu/ffshot/actions/workflows/ci.yml/badge.svg)](https://github.com/uehatsu/ffshot/actions/workflows/ci.yml)
 
