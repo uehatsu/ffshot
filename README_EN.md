@@ -88,7 +88,7 @@ Tests that capture the real screen (`Category=Screen`) do not work on the runner
 
 ## Usage
 
-When started, a fox icon appears in the tray. Double-click it, or right-click and choose "Settings...", to change the following.
+When started, a fox icon appears in the tray. Left-click or right-click opens the menu; double-click opens the settings dialog. The menu has "Capture full screen", "Capture active window", "Settings...", "Open save folder" and "Exit" (plus "Restart as administrator" when not elevated). The settings dialog lets you change the following.
 
 | Setting | Default |
 |---|---|

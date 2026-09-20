@@ -19,6 +19,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private readonly CaptureService _capture = new();
     private bool _capturing;
     private SettingsForm? _settingsForm;
+    private readonly System.Windows.Forms.Timer _clickTimer = new();
+    private bool _suppressNextClick;
 
     public TrayApplicationContext()
     {
@@ -32,7 +34,37 @@ internal sealed class TrayApplicationContext : ApplicationContext
             Visible = true,
             ContextMenuStrip = BuildMenu(),
         };
-        _tray.DoubleClick += (_, _) => ShowSettings();
+        // 左クリック: ダブルクリック判定時間だけ待ってからメニューを表示（ダブルクリックなら設定を開く）
+        _clickTimer.Interval = SystemInformation.DoubleClickTime;
+        _clickTimer.Tick += (_, _) =>
+        {
+            _clickTimer.Stop();
+            ShowContextMenu();
+        };
+        _tray.MouseUp += (_, e) =>
+        {
+            if (e.Button != MouseButtons.Left)
+            {
+                return;
+            }
+            if (_suppressNextClick)
+            {
+                _suppressNextClick = false; // ダブルクリック直後の 2 回目の MouseUp
+                return;
+            }
+            _clickTimer.Stop();
+            _clickTimer.Start();
+        };
+        _tray.MouseDoubleClick += (_, e) =>
+        {
+            if (e.Button != MouseButtons.Left)
+            {
+                return;
+            }
+            _clickTimer.Stop();
+            _suppressNextClick = true;
+            ShowSettings();
+        };
 
         _hotkeys.HotkeyPressed += OnHotkey;
         ApplyHotkeys();
@@ -141,6 +173,22 @@ internal sealed class TrayApplicationContext : ApplicationContext
         }
     }
 
+    private void ShowContextMenu()
+    {
+        // NotifyIcon は右クリック以外でメニューを出す公開 API を持たないため、内部メソッドを呼ぶ。
+        // これだとメニュー外クリックで正しく閉じる。取れなければ座標指定で表示する。
+        var method = typeof(NotifyIcon).GetMethod("ShowContextMenu",
+            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        if (method is not null)
+        {
+            method.Invoke(_tray, null);
+        }
+        else
+        {
+            _tray.ContextMenuStrip?.Show(Cursor.Position);
+        }
+    }
+
     private void ShowSettings()
     {
         if (_settingsForm is { IsDisposed: false })
@@ -207,6 +255,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     {
         if (disposing)
         {
+            _clickTimer.Dispose();
             _hotkeys.Dispose();
             _capture.Dispose();
             _tray.Dispose();
