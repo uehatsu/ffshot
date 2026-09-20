@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/icon.png" width="160" height="160" alt="ffshot のアイコン">
+</p>
+
 # ffshot
 
 タスクトレイに常駐し、ホットキーで PNG スクリーンショットを保存する Windows アプリです。
