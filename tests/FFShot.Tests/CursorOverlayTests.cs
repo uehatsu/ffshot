@@ -2,6 +2,7 @@ using FFShot.Capture;
 
 namespace FFShot.Tests;
 
+[Trait("Category", "Screen")]
 public class CursorOverlayTests
 {
     [Fact]

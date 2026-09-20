@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build
+        run: dotnet build ffshot.sln -c Release --nologo
+
+      # 画面を実際に撮るテスト (Category=Screen) はランナーの仮想ディスプレイでは動かないため除外
+      - name: Test
+        run: dotnet test ffshot.sln -c Release --no-build --nologo --filter "Category!=Screen"
+
+      - name: Publish (self-contained, win-x64)
+        run: dotnet publish src/FFShot -c Release -r win-x64 -o publish/win-x64 --nologo
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ffshot-win-x64-${{ github.sha }}
+          path: publish/win-x64/ffshot.exe
+          if-no-files-found: error

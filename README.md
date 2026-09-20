@@ -21,11 +21,27 @@ dotnet run --project src/FFShot
 dotnet test ffshot.sln
 ```
 
-配布用に単一 exe を作る場合:
+配布用に単一 exe（.NET ランタイム同梱、約 55 MB）を作る場合:
 
 ```powershell
-dotnet publish src/FFShot -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true
+dotnet publish src/FFShot -c Release -r win-x64 -o publish
 ```
+
+## ダウンロード
+
+[Releases](https://github.com/uehatsu/ffshot/releases) から `ffshot-<version>-win-x64.zip` を取得し、展開した `ffshot.exe` を実行してください。ランタイムのインストールは不要です。コード署名をしていないため、初回起動時に SmartScreen の警告が出る場合があります。「詳細情報」→「実行」で起動できます。
+
+### CI / リリース
+
+- push / PR ごとに GitHub Actions（`ci.yml`）がビルド・テスト・publish を行い、exe を Actions の成果物として添付します。
+- `v1.2.3` のようなタグを push すると `release.yml` が zip と SHA256 を GitHub Release に添付します。
+
+```powershell
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+画面を実際に撮るテスト（`Category=Screen`）はランナーの仮想ディスプレイでは動かないため CI では除外しています。ローカルでは `dotnet test` で全件実行されます。
 
 WSL から Windows 側の SDK を使う場合は `"/mnt/c/Program Files/dotnet/dotnet.exe"` を呼びます。
 
