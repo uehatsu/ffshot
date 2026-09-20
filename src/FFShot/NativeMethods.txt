@@ -16,3 +16,6 @@ DeleteObject
 WM_HOTKEY
 HOT_KEY_MODIFIERS
 GetAsyncKeyState
+IsIconic
+IsWindowVisible
+GetWindowThreadProcessId

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using FFShot.Capture;
 using FFShot.Hotkeys;
 using FFShot.Settings;
 using FFShot.UI;
@@ -15,6 +16,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private readonly NotifyIcon _tray;
     private readonly Icon _icon;
     private readonly HotkeyManager _hotkeys = new();
+    private readonly CaptureService _capture = new();
+    private bool _capturing;
     private SettingsForm? _settingsForm;
 
     public TrayApplicationContext()
@@ -38,8 +41,8 @@ internal sealed class TrayApplicationContext : ApplicationContext
     private ContextMenuStrip BuildMenu()
     {
         var menu = new ContextMenuStrip();
-        menu.Items.Add("全画面を撮影(&F)", null, (_, _) => { /* Phase 3 */ });
-        menu.Items.Add("アクティブウィンドウを撮影(&A)", null, (_, _) => { /* Phase 3 */ });
+        menu.Items.Add("全画面を撮影(&F)", null, (_, _) => CaptureAfterMenuCloses(CaptureTarget.FullScreen));
+        menu.Items.Add("アクティブウィンドウを撮影(&A)", null, (_, _) => CaptureAfterMenuCloses(CaptureTarget.ActiveWindow));
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("設定(&S)...", null, (_, _) => ShowSettings());
         menu.Items.Add("保存先を開く(&O)", null, (_, _) => OpenSaveFolder());
@@ -50,8 +53,57 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
     private void OnHotkey(int id)
     {
-        // Phase 3 で撮影処理に接続する
-        _tray.ShowBalloonTip(1000, "ffshot", $"hotkey {id}", ToolTipIcon.Info);
+        switch (id)
+        {
+            case HotkeyIdFullScreen:
+                DoCapture(CaptureTarget.FullScreen);
+                break;
+            case HotkeyIdActiveWindow:
+                DoCapture(CaptureTarget.ActiveWindow);
+                break;
+        }
+    }
+
+    /// <summary>メニューから撮る場合はメニューが閉じて画面が落ち着くまで少し待つ。</summary>
+    private void CaptureAfterMenuCloses(CaptureTarget target)
+    {
+        var timer = new System.Windows.Forms.Timer { Interval = 350 };
+        timer.Tick += (_, _) =>
+        {
+            timer.Dispose();
+            DoCapture(target);
+        };
+        timer.Start();
+    }
+
+    private void DoCapture(CaptureTarget target)
+    {
+        if (_capturing)
+        {
+            return;
+        }
+        _capturing = true;
+        try
+        {
+            var result = _capture.Capture(target, _settings);
+            if (result.Warning is not null)
+            {
+                _tray.ShowBalloonTip(5000, "ffshot - フォールバック", result.Warning, ToolTipIcon.Warning);
+            }
+            else if (_settings.ShowNotification)
+            {
+                _tray.ShowBalloonTip(2000, "ffshot - 保存しました",
+                    $"{Path.GetFileName(result.Path)}\n{result.Bounds.Width}x{result.Bounds.Height} ({result.BackendName})", ToolTipIcon.Info);
+            }
+        }
+        catch (Exception ex) when (ex is CaptureException or IOException or UnauthorizedAccessException)
+        {
+            _tray.ShowBalloonTip(5000, "ffshot - 撮影に失敗しました", ex.Message, ToolTipIcon.Error);
+        }
+        finally
+        {
+            _capturing = false;
+        }
     }
 
     private void ShowSettings()
@@ -120,6 +172,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         if (disposing)
         {
             _hotkeys.Dispose();
+            _capture.Dispose();
             _tray.Dispose();
             _icon.Dispose();
         }
