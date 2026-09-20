@@ -13,6 +13,14 @@
     <AssemblyName>ffshot</AssemblyName>
     <RootNamespace>FFShot</RootNamespace>
     <Version>0.1.0</Version>
+    <!-- exe のプロパティ（詳細タブ）に表示される情報 -->
+    <Product>First Fox Screenshot</Product>
+    <AssemblyTitle>First Fox Screenshot (ffshot)</AssemblyTitle>
+    <Description>タスクトレイに常駐し、ホットキーで PNG スクリーンショットを保存します。</Description>
+    <Authors>Hatsuhito UENO</Authors>
+    <Company>Hatsuhito UENO</Company>
+    <Copyright>Copyright © 2026 Hatsuhito UENO</Copyright>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <InvariantGlobalization>false</InvariantGlobalization>
     <SatelliteResourceLanguages>ja;en</SatelliteResourceLanguages>
