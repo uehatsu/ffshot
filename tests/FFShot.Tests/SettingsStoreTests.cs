@@ -51,6 +51,16 @@ public class SettingsStoreTests : IDisposable
     }
 
     [Fact]
+    public void DerivedPath_IsNotWritten_AndPlusIsNotEscaped()
+    {
+        var path = Path.Combine(_dir, "settings.json");
+        new SettingsStore(path).Save(new AppSettings { HotkeyFullScreen = "Ctrl+Shift+F12" });
+        var json = File.ReadAllText(path);
+        Assert.DoesNotContain("resolvedSaveFolder", json);
+        Assert.Contains("\"Ctrl+Shift+F12\"", json);
+    }
+
+    [Fact]
     public void EnumIsSerializedAsString()
     {
         var path = Path.Combine(_dir, "settings.json");

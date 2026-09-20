@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace FFShot.Settings;
 
 public enum CaptureBackendKind
@@ -21,5 +23,6 @@ public sealed class AppSettings
 
     public AppSettings Clone() => (AppSettings)MemberwiseClone();
 
+    [JsonIgnore]
     public string ResolvedSaveFolder => Environment.ExpandEnvironmentVariables(SaveFolder);
 }
