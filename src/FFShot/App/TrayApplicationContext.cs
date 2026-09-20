@@ -36,6 +36,19 @@ internal sealed class TrayApplicationContext : ApplicationContext
 
         _hotkeys.HotkeyPressed += OnHotkey;
         ApplyHotkeys();
+        ApplyStartupRegistration();
+    }
+
+    private void ApplyStartupRegistration()
+    {
+        try
+        {
+            new StartupRegistration().Apply(_settings.RunAtStartup);
+        }
+        catch (Exception ex) when (ex is System.Security.SecurityException or UnauthorizedAccessException or IOException)
+        {
+            _tray.ShowBalloonTip(5000, "ffshot - 自動起動の設定に失敗しました", ex.Message, ToolTipIcon.Warning);
+        }
     }
 
     private ContextMenuStrip BuildMenu()
@@ -122,6 +135,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
             {
                 _settings = _settingsForm.Result;
                 _store.Save(_settings);
+                ApplyStartupRegistration();
             }
         }
         _settingsForm = null;

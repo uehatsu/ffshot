@@ -34,6 +34,11 @@ internal sealed class CaptureService : IDisposable
 
         using (bitmap)
         {
+            if (settings.IncludeCursor)
+            {
+                CursorOverlay.Draw(bitmap, bounds);
+            }
+
             var folder = settings.ResolvedSaveFolder;
             var name = FileNamer.Expand(settings.FileNamePattern, DateTime.Now, label);
             var path = FileNamer.UniquePath(folder, name, ".png");
