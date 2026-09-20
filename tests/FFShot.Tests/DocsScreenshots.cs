@@ -8,7 +8,7 @@ namespace FFShot.Tests;
 /// <summary>
 /// README 用スクリーンショットの生成。通常のテスト実行では何もしない。
 /// 実行: FFSHOT_DOCS=1 dotnet test tests/FFShot.Tests --filter DocsScreenshots
-/// FFSHOT_DOCS_LANG=en を付けると英語 UI で %TEMP% に出力する（README 用ではなくレイアウト確認用）。
+/// FFSHOT_DOCS_LANG=en を付けると英語 UI で docs/settings_en.png に出力する（README_EN 用）。
 /// </summary>
 [Trait("Category", "Screen")]
 public class DocsScreenshots
@@ -83,9 +83,7 @@ public class DocsScreenshots
             using var backend = new GdiCaptureBackend();
             using var bmp = backend.Capture(bounds);
             var lang = Environment.GetEnvironmentVariable("FFSHOT_DOCS_LANG");
-            var path = string.IsNullOrEmpty(lang)
-                ? Path.Combine(DocsDir(), "settings.png")
-                : Path.Combine(Path.GetTempPath(), $"ffshot-docs-settings-{lang}.png");
+            var path = Path.Combine(DocsDir(), string.IsNullOrEmpty(lang) ? "settings.png" : $"settings_{lang}.png");
             bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
             form.Close();
         });

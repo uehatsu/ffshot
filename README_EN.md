@@ -94,11 +94,11 @@ Tests that capture the real screen (`Category=Screen`) do not work on the runner
 
 When started, a fox icon appears in the tray. Left-click or right-click opens the menu; double-click opens the settings dialog. The menu has "Capture full screen", "Capture active window", "Settings...", "Open save folder", "Restart as administrator" and "Exit". "Restart as administrator" appears only while running as a normal user; it is hidden when already elevated.
 
-<img src="docs/doc_01.png" width="415" alt="Fox icon in the tray and its menu (running as a normal user)">
+<img src="docs/doc_02.png" width="415" alt="Fox icon in the tray and its menu (running as a normal user)">
 
-The settings dialog lets you change the following. (The screenshots show the Japanese UI; the app switches to English on non-Japanese systems or via the Language setting.)
+The settings dialog lets you change the following.
 
-<img src="docs/settings.png" width="482" alt="Settings dialog">
+<img src="docs/settings_en.png" width="502" alt="Settings dialog">
 
 | Setting | Default |
 |---|---|
@@ -115,7 +115,7 @@ The settings dialog lets you change the following. (The screenshots show the Jap
 
 After a capture is saved, a notification appears at the bottom right (it can be turned off in the settings).
 
-<img src="docs/notification.png" width="420" alt="Notification after saving">
+<img src="docs/notification_en.png" width="420" alt="Notification after saving">
 
 Inside `{ }` in the file name pattern you can use .NET date/time format strings. `{target}` expands to `full` or `window`. If a file with the same name exists, `_1`, `_2`, ... is appended.
 
