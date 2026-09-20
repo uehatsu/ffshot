@@ -12,7 +12,7 @@
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <AssemblyName>ffshot</AssemblyName>
     <RootNamespace>FFShot</RootNamespace>
-    <Version>0.2.0</Version>
+    <Version>0.2.1</Version>
     <!-- exe のプロパティ（詳細タブ）に表示される情報 -->
     <Product>First Fox Screenshot</Product>
     <AssemblyTitle>First Fox Screenshot (ffshot)</AssemblyTitle>
