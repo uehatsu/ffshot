@@ -28,7 +28,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
         _tray = new NotifyIcon
         {
             Icon = _icon,
-            Text = "ffshot",
+            Text = Elevation.IsElevated ? "ffshot（管理者）" : "ffshot（通常権限）",
             Visible = true,
             ContextMenuStrip = BuildMenu(),
         };
@@ -39,15 +39,28 @@ internal sealed class TrayApplicationContext : ApplicationContext
         ApplyStartupRegistration();
     }
 
+    private void RestartElevated()
+    {
+        if (!Elevation.StartElevatedCopy())
+        {
+            return; // UAC をキャンセル
+        }
+        ExitThread();
+    }
+
     private void ApplyStartupRegistration()
     {
         try
         {
-            new StartupRegistration().Apply(_settings.RunAtStartup);
+            var message = new StartupManager(Elevation.IsElevated).Apply(_settings.RunAtStartup);
+            if (message is not null)
+            {
+                _tray.ShowBalloonTip(8000, "ffshot - 自動起動", message, ToolTipIcon.Warning);
+            }
         }
-        catch (Exception ex) when (ex is System.Security.SecurityException or UnauthorizedAccessException or IOException)
+        catch (Exception ex) when (ex is System.Security.SecurityException or UnauthorizedAccessException or IOException or InvalidOperationException)
         {
-            _tray.ShowBalloonTip(5000, "ffshot - 自動起動の設定に失敗しました", ex.Message, ToolTipIcon.Warning);
+            _tray.ShowBalloonTip(8000, "ffshot - 自動起動の設定に失敗しました", ex.Message, ToolTipIcon.Warning);
         }
     }
 
@@ -60,6 +73,15 @@ internal sealed class TrayApplicationContext : ApplicationContext
         menu.Items.Add("設定(&S)...", null, (_, _) => ShowSettings());
         menu.Items.Add("保存先を開く(&O)", null, (_, _) => OpenSaveFolder());
         menu.Items.Add(new ToolStripSeparator());
+        if (!Elevation.IsElevated)
+        {
+            var elevate = new ToolStripMenuItem("管理者として再起動(&R)", null, (_, _) => RestartElevated())
+            {
+                ToolTipText = "管理者権限で動くアプリ（ゲームなど）が前面のときもホットキーを効かせます",
+            };
+            menu.Items.Add(elevate);
+            menu.Items.Add(new ToolStripSeparator());
+        }
         menu.Items.Add("終了(&X)", null, (_, _) => ExitThread());
         return menu;
     }

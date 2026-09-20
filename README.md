@@ -49,11 +49,25 @@ WSL から Windows 側の SDK を使う場合は `"/mnt/c/Program Files/dotnet/d
 
 ホットキーの入力欄では、押したキーの組み合わせがそのまま設定されます。Backspace で解除できます。他アプリと競合して登録できなかった場合はトレイ通知でお知らせします。
 
+## 管理者権限で動くアプリ（ゲームなど）を撮る
+
+Windows の UIPI により、通常権限のアプリが登録したホットキーは、管理者権限のウィンドウが前面にあるときは届きません。PlayOnline Viewer のように `requireAdministrator` で起動するアプリを撮る場合は、トレイメニューの「管理者として再起動」を使ってください（UAC の確認が 1 回出ます）。
+
+自動起動の登録先は権限に応じて切り替わります。
+
+| ffshot の権限 | 登録先 | ログオン時の起動 |
+|---|---|---|
+| 通常権限 | `HKCU\...\Run` | 通常権限 |
+| 管理者 | タスクスケジューラ（タスク名 `ffshot`、最上位の特権） | 管理者権限、UAC なし |
+
+管理者権限で常駐させたい場合は、「管理者として再起動」してから設定の「Windows ログオン時に自動起動する」をオンにしてください。
+
 ## 構成
 
 ```
 src/FFShot/
-  App/        TrayApplicationContext（トレイ・配線）, CaptureService, StartupRegistration
+  App/        TrayApplicationContext（トレイ・配線）, CaptureService, Elevation,
+              StartupManager（Run キー / タスクスケジューラの振り分け）
   Hotkeys/    HotkeyBinding（文字列変換）, HotkeyManager（RegisterHotKey）
   Capture/    ICaptureBackend, GdiCaptureBackend, DesktopDuplicationBackend, WindowInfo, CursorOverlay
   Output/     FileNamer, PngWriter

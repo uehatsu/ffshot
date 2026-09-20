@@ -30,7 +30,7 @@ internal sealed class SettingsForm : Form
         MinimizeBox = false;
         ShowInTaskbar = false;
         AutoScaleMode = AutoScaleMode.Dpi;
-        ClientSize = new Size(480, 400);
+        ClientSize = new Size(480, 470);
         Font = new Font("Yu Gothic UI", 9f);
 
         _backend.Items.AddRange(["通常 (GDI)", "DirectX (Direct3D / Desktop Duplication)"]);
@@ -72,6 +72,21 @@ internal sealed class SettingsForm : Form
             grid.SetColumnSpan(cb, 2);
             row++;
         }
+
+        var startupHint = new Label
+        {
+            Text = App.Elevation.IsElevated
+                ? "管理者権限で動作中: タスクスケジューラに登録し、ログオン時に管理者権限で起動します。"
+                : "通常権限で動作中: Run キーに登録し、通常権限で起動します。\n" +
+                  "管理者権限のアプリ（ゲームなど）でもホットキーを効かせるには、先にトレイメニューの「管理者として再起動」を行ってから設定してください。",
+            AutoSize = true,
+            MaximumSize = new Size(430, 0),
+            ForeColor = SystemColors.GrayText,
+            Margin = new Padding(20, 0, 3, 8),
+        };
+        grid.Controls.Add(startupHint, 1, row);
+        grid.SetColumnSpan(startupHint, 2);
+        row++;
 
         var ok = new Button { Text = "OK", DialogResult = DialogResult.OK, AutoSize = true };
         var cancel = new Button { Text = "キャンセル", DialogResult = DialogResult.Cancel, AutoSize = true };

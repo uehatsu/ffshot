@@ -10,7 +10,7 @@ internal static class Program
     private static void Main()
     {
         using var mutex = new Mutex(initiallyOwned: true, MutexName, out var createdNew);
-        if (!createdNew)
+        if (!createdNew && !WaitForPreviousInstance(mutex))
         {
             MessageBox.Show("ffshot は既に起動しています。", "ffshot",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -24,5 +24,18 @@ internal static class Program
 
         using var context = new TrayApplicationContext();
         Application.Run(context);
+    }
+
+    /// <summary>「管理者として再起動」の直後は前のインスタンスが終了中なので、少しだけ待つ。</summary>
+    private static bool WaitForPreviousInstance(Mutex mutex)
+    {
+        try
+        {
+            return mutex.WaitOne(TimeSpan.FromSeconds(5));
+        }
+        catch (AbandonedMutexException)
+        {
+            return true; // 前のプロセスが終了して所有権が移った
+        }
     }
 }
