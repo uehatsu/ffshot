@@ -24,6 +24,7 @@ internal sealed class SettingsForm : Form
         Result = current.Clone();
 
         Text = "ffshot 設定";
+        Icon = App.TrayIconFactory.CreateWindowIcon();
         StartPosition = FormStartPosition.CenterScreen;
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;

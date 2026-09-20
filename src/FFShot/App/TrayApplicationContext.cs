@@ -23,7 +23,7 @@ internal sealed class TrayApplicationContext : ApplicationContext
     public TrayApplicationContext()
     {
         _settings = _store.Load();
-        _icon = TrayIconFactory.Create();
+        _icon = TrayIconFactory.CreateTrayIcon();
 
         _tray = new NotifyIcon
         {
