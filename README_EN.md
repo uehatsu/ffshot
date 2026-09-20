@@ -78,10 +78,13 @@ From WSL, call the Windows SDK as `"/mnt/c/Program Files/dotnet/dotnet.exe"`.
 
 - On every push and pull request, GitHub Actions (`ci.yml`) builds, tests, publishes, and attaches the exe as a workflow artifact.
 - Pushing a tag like `v1.2.3` runs `release.yml`, which zips the self-contained exe and attaches it to a GitHub Release together with `SHA256SUMS.txt`. Release notes are generated from the commit history.
+- Before releasing, set `<Version>` in `src/FFShot/FFShot.csproj` to the same value as the tag. The workflow fails if they differ.
 
 ```powershell
+# 1. Change <Version> in the csproj to 0.2.0 and commit
+# 2. Tag and push
 git tag -a v0.2.0 -m "v0.2.0"
-git push origin v0.2.0
+git push origin main v0.2.0
 ```
 
 Tests that capture the real screen (`Category=Screen`) do not work on the runner's virtual display and are excluded in CI. Locally, `dotnet test` runs everything.

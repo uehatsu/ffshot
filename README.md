@@ -78,10 +78,13 @@ WSL から Windows 側の SDK を使う場合は `"/mnt/c/Program Files/dotnet/d
 
 - push / PR ごとに GitHub Actions（`ci.yml`）がビルド・テスト・publish を行い、exe を Actions の成果物として添付します。
 - `v1.2.3` のようなタグを push すると `release.yml` が self-contained の exe を zip にし、`SHA256SUMS.txt` とともに GitHub Release へ添付します。リリースノートはコミット履歴から自動生成されます。
+- リリース前に `src/FFShot/FFShot.csproj` の `<Version>` をタグと同じ値に上げてください。食い違っているとワークフローが失敗します。
 
 ```powershell
+# 1. csproj の <Version> を 0.2.0 に変更してコミット
+# 2. タグを打って push
 git tag -a v0.2.0 -m "v0.2.0"
-git push origin v0.2.0
+git push origin main v0.2.0
 ```
 
 画面を実際に撮るテスト（`Category=Screen`）はランナーの仮想ディスプレイでは動かないため CI では除外しています。ローカルでは `dotnet test` で全件実行されます。

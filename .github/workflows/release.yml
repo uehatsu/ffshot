@@ -22,6 +22,18 @@ jobs:
         shell: bash
         run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
+      # csproj の <Version> とタグが食い違ったまま配布しないためのガード
+      - name: Check csproj version matches the tag
+        shell: bash
+        run: |
+          csproj_version="$(dotnet msbuild src/FFShot -getProperty:Version -nologo | tr -d '\r')"
+          tag_version="${{ steps.ver.outputs.version }}"
+          if [ "$csproj_version" != "$tag_version" ]; then
+            echo "::error::src/FFShot/FFShot.csproj の <Version> ($csproj_version) がタグ ($tag_version) と一致しません。csproj を更新してからタグを打ち直してください。"
+            exit 1
+          fi
+          echo "version OK: $csproj_version"
+
       - name: Test
         run: dotnet test ffshot.sln -c Release --nologo --filter "Category!=Screen"
 
