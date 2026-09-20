@@ -15,3 +15,4 @@ DestroyIcon
 DeleteObject
 WM_HOTKEY
 HOT_KEY_MODIFIERS
+GetAsyncKeyState
