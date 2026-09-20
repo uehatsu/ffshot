@@ -1,0 +1,17 @@
+RegisterHotKey
+UnregisterHotKey
+GetForegroundWindow
+GetWindowRect
+DwmGetWindowAttribute
+DWMWINDOWATTRIBUTE
+MonitorFromWindow
+MonitorFromPoint
+GetMonitorInfo
+GetCursorPos
+GetCursorInfo
+GetIconInfo
+DrawIconEx
+DestroyIcon
+DeleteObject
+WM_HOTKEY
+HOT_KEY_MODIFIERS
