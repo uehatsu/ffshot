@@ -79,10 +79,26 @@ internal sealed class HotkeyTextBox : TextBox
     protected override void OnKeyUp(KeyEventArgs e)
     {
         e.Handled = true;
+
+        // PrintScreen は Windows が KeyDown を送らず KeyUp しか来ないので、ここで拾う
+        if ((e.KeyCode & Keys.KeyCode) == Keys.PrintScreen)
+        {
+            var b = HotkeyBinding.FromKeyEvent(e, IsWinDown());
+            if (b is { } value)
+            {
+                Binding = value;
+            }
+            return;
+        }
+
         // 修飾キーだけ押して離した場合は元の表示に戻す
         if (Text.EndsWith('…'))
         {
             Text = _binding.ToString();
         }
     }
+
+    /// <summary>テスト用に KeyDown / KeyUp を外から流し込む。</summary>
+    internal void SimulateKeyDown(KeyEventArgs e) => OnKeyDown(e);
+    internal void SimulateKeyUp(KeyEventArgs e) => OnKeyUp(e);
 }
