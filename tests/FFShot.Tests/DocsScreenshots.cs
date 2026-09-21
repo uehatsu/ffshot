@@ -74,6 +74,22 @@ public class DocsScreenshots
             using var form = new SettingsForm(new AppSettings());
             form.StartPosition = FormStartPosition.Manual;
             form.Location = new Point(200, 200);
+
+            // FFSHOT_DOCS_SCALE=2 で 200% 表示スケール相当（文字と枠を 2 倍）を疑似再現する。
+            // FFSHOT_DOCS_FONTSCALE=2 は文字だけ 2 倍（枠が DPI に追従しない不具合の再現用）。
+            var scaleText = Environment.GetEnvironmentVariable("FFSHOT_DOCS_SCALE");
+            var fontScaleText = Environment.GetEnvironmentVariable("FFSHOT_DOCS_FONTSCALE");
+            if (float.TryParse(scaleText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var scale) && scale > 0 && scale != 1f)
+            {
+                form.Font = new Font(form.Font.FontFamily, form.Font.Size * scale);
+                form.Scale(new SizeF(scale, scale));
+            }
+            else if (float.TryParse(fontScaleText, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var fontScale) && fontScale > 0 && fontScale != 1f)
+            {
+                form.Font = new Font(form.Font.FontFamily, form.Font.Size * fontScale);
+                scaleText = "font" + fontScaleText;
+            }
+
             form.Show();
             form.Activate();
             Pump(800);
@@ -83,7 +99,9 @@ public class DocsScreenshots
             using var backend = new GdiCaptureBackend();
             using var bmp = backend.Capture(bounds);
             var lang = Environment.GetEnvironmentVariable("FFSHOT_DOCS_LANG");
-            var path = Path.Combine(DocsDir(), string.IsNullOrEmpty(lang) ? "settings.png" : $"settings_{lang}.png");
+            var path = string.IsNullOrEmpty(scaleText)
+                ? Path.Combine(DocsDir(), string.IsNullOrEmpty(lang) ? "settings.png" : $"settings_{lang}.png")
+                : Path.Combine(Path.GetTempPath(), $"ffshot-settings-{lang ?? "ja"}-x{scaleText}.png");
             bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
             form.Close();
         });

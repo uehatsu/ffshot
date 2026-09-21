@@ -98,7 +98,7 @@ git push origin main v0.2.0
 
 設定画面では以下を変更できます。
 
-<img src="docs/settings.png" width="482" alt="設定ダイアログ">
+<img src="docs/settings.png" width="548" alt="設定ダイアログ">
 
 | 項目 | 既定値 |
 |---|---|

@@ -12,6 +12,8 @@ internal sealed class SettingsForm : Form
     private readonly TextBox _folder = new();
     private readonly TextBox _pattern = new();
     private readonly ComboBox _language = new() { DropDownStyle = ComboBoxStyle.DropDownList };
+    private readonly TableLayoutPanel _grid;
+    private readonly FlowLayoutPanel _buttons;
     private readonly CheckBox _allMonitors = new() { Text = Strings.Settings_AllMonitors, AutoSize = true };
     private readonly CheckBox _cursor = new() { Text = Strings.Settings_IncludeCursor, AutoSize = true };
     private readonly CheckBox _notify = new() { Text = Strings.Settings_ShowNotification, AutoSize = true };
@@ -32,6 +34,9 @@ internal sealed class SettingsForm : Form
         MaximizeBox = false;
         MinimizeBox = false;
         ShowInTaskbar = false;
+        // 96 DPI を基準にすると WinForms が表示スケール（125%〜）に合わせて枠・余白・サイズを拡大する。
+        // AutoScaleDimensions を指定しないと拡大率 1 とみなされ、文字だけ大きくなって崩れる。
+        AutoScaleDimensions = new SizeF(96F, 96F);
         AutoScaleMode = AutoScaleMode.Dpi;
         ClientSize = new Size(500, 540);
         Font = new Font("Yu Gothic UI", 9f);
@@ -39,12 +44,13 @@ internal sealed class SettingsForm : Form
         _backend.Items.AddRange([Strings.Settings_Backend_Gdi, Strings.Settings_Backend_Direct3D]);
         _language.Items.AddRange([Strings.Settings_Language_Auto, Strings.Settings_Language_Japanese, Strings.Settings_Language_English]);
 
-        var grid = new TableLayoutPanel
+        var grid = _grid = new TableLayoutPanel
         {
             Dock = DockStyle.Fill,
             ColumnCount = 3,
             Padding = new Padding(12),
             AutoSize = true,
+            AutoScroll = true, // 画面が低くて収まらない場合のみスクロール
         };
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         grid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
@@ -63,7 +69,7 @@ internal sealed class SettingsForm : Form
         {
             Text = Strings.Settings_FileNameHint,
             AutoSize = true,
-            MaximumSize = new Size(450, 0),
+            Dock = DockStyle.Fill, // セル幅で折り返す
             ForeColor = SystemColors.GrayText,
             Margin = new Padding(3, 0, 3, 8),
         };
@@ -82,7 +88,7 @@ internal sealed class SettingsForm : Form
         {
             Text = App.Elevation.IsElevated ? Strings.Settings_StartupHintElevated : Strings.Settings_StartupHintNormal,
             AutoSize = true,
-            MaximumSize = new Size(450, 0),
+            Dock = DockStyle.Fill,
             ForeColor = SystemColors.GrayText,
             Margin = new Padding(20, 0, 3, 8),
         };
@@ -95,7 +101,7 @@ internal sealed class SettingsForm : Form
         {
             Text = Strings.Settings_LanguageHint,
             AutoSize = true,
-            MaximumSize = new Size(450, 0),
+            Dock = DockStyle.Fill,
             ForeColor = SystemColors.GrayText,
             Margin = new Padding(3, 0, 3, 8),
         };
@@ -106,7 +112,7 @@ internal sealed class SettingsForm : Form
         var ok = new Button { Text = Strings.Settings_OK, DialogResult = DialogResult.OK, AutoSize = true };
         var cancel = new Button { Text = Strings.Settings_Cancel, DialogResult = DialogResult.Cancel, AutoSize = true };
         ok.Click += (_, _) => Apply();
-        var buttons = new FlowLayoutPanel
+        var buttons = _buttons = new FlowLayoutPanel
         {
             FlowDirection = FlowDirection.RightToLeft,
             Dock = DockStyle.Bottom,
@@ -122,11 +128,63 @@ internal sealed class SettingsForm : Form
         CancelButton = cancel;
 
         LoadFrom(current);
+    }
 
-        // 言語によって文言の行数が変わるので、高さは内容に合わせて決める
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        FitToContent();
+    }
+
+    protected override void OnDpiChanged(DpiChangedEventArgs e)
+    {
+        base.OnDpiChanged(e);
+        FitToContent();
+    }
+
+    /// <summary>
+    /// DPI 拡大の適用後に、内容に合わせて幅と高さを決める。
+    /// 幅: ラベル列が広くても入力列が最低限の幅を保つように広げる。
+    /// 高さ: 言語や折り返しで変わる行数に合わせる。画面に収まらなければスクロールにする。
+    /// </summary>
+    private void FitToContent()
+    {
+        // 測定中にスクロールバーが出て幅を奪わないよう、いったん無効にする
+        _grid.AutoScroll = false;
         PerformLayout();
-        var gridHeight = grid.GetPreferredSize(new Size(ClientSize.Width, 0)).Height;
-        ClientSize = new Size(ClientSize.Width, gridHeight + buttons.Height);
+
+        var widths = _grid.GetColumnWidths();
+        if (widths.Length == 3)
+        {
+            // 入力列は最低 280 論理px、かつチェックボックスの文言が切れない幅を確保する
+            var minInputWidth = LogicalToDeviceUnits(280);
+            foreach (var cb in new[] { _allMonitors, _cursor, _notify, _startup })
+            {
+                minInputWidth = Math.Max(minInputWidth, cb.PreferredSize.Width + cb.Margin.Horizontal);
+            }
+            var inputWidth = ClientSize.Width - widths[0] - widths[2] - _grid.Padding.Horizontal;
+            if (inputWidth < minInputWidth)
+            {
+                ClientSize = new Size(ClientSize.Width + (minInputWidth - inputWidth), ClientSize.Height);
+            }
+        }
+
+        // 折り返しは幅が決まってから確定するので、高さは 2 回測る
+        var wanted = MeasureWantedHeight();
+        ClientSize = new Size(ClientSize.Width, wanted);
+        wanted = MeasureWantedHeight();
+
+        var chrome = Height - ClientSize.Height;
+        var maxClientHeight = Screen.FromControl(this).WorkingArea.Height - chrome - LogicalToDeviceUnits(40);
+        var fits = wanted <= maxClientHeight;
+        _grid.AutoScroll = !fits;
+        ClientSize = new Size(ClientSize.Width, Math.Max(LogicalToDeviceUnits(300), fits ? wanted : maxClientHeight));
+    }
+
+    private int MeasureWantedHeight()
+    {
+        PerformLayout();
+        return _grid.GetPreferredSize(new Size(ClientSize.Width, 0)).Height + _buttons.Height + LogicalToDeviceUnits(2);
     }
 
     private static void AddRow(TableLayoutPanel grid, int row, string label, Control input, Control? extra = null)

@@ -98,7 +98,7 @@ When started, a fox icon appears in the tray. Left-click or right-click opens th
 
 The settings dialog lets you change the following.
 
-<img src="docs/settings_en.png" width="502" alt="Settings dialog">
+<img src="docs/settings_en.png" width="527" alt="Settings dialog">
 
 | Setting | Default |
 |---|---|
