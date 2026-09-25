@@ -152,3 +152,7 @@ tests/FFShot.Tests/   xunit（画面を実際に撮るテストを含むため W
 
 - Direct3D 方式は HDR 有効時（R16G16B16A16_FLOAT）や回転したディスプレイに未対応です。その場合は GDI にフォールバックします。
 - 隠れているウィンドウの中身は撮れません（画面に見えている内容を切り出します）。
+
+## ライセンス
+
+[MIT License](LICENSE) です。同梱しているサードパーティ製ソフトウェアのライセンスは [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt) を参照してください。

@@ -152,3 +152,7 @@ tests/FFShot.Tests/   xunit (includes tests that capture the real screen, so run
 
 - The Direct3D backend does not support HDR (R16G16B16A16_FLOAT) or rotated displays. In those cases it falls back to GDI.
 - Hidden parts of windows cannot be captured; only what is visible on screen is cropped.
+
+## License
+
+Released under the [MIT License](LICENSE). For the licenses of bundled third-party software, see [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).

@@ -45,3 +45,5 @@ Tips
 
 
 Copyright (c) 2026 Hatsuhito UENO
+MIT License (see LICENSE.txt)
+Third-party notices: THIRD-PARTY-NOTICES.txt
