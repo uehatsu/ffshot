@@ -164,7 +164,7 @@
     <value>回転したディスプレイは Direct3D キャプチャに未対応です。</value>
   </data>
   <data name="Capture_FormatUnsupported" xml:space="preserve">
-    <value>未対応のデスクトップ形式です: {0}（HDR が有効な場合は GDI を使用してください）</value>
+    <value>未対応のデスクトップ形式です: {0}</value>
   </data>
   <data name="Capture_DDUnsupported" xml:space="preserve">
     <value>この環境では Desktop Duplication が使えません（リモートセッションや一部の仮想環境）。</value>

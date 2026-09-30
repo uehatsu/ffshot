@@ -150,7 +150,8 @@ tests/FFShot.Tests/   xunit (includes tests that capture the real screen, so run
 
 ## Known limitations
 
-- The Direct3D backend does not support HDR (R16G16B16A16_FLOAT) or rotated displays. In those cases it falls back to GDI.
+- The Direct3D backend does not support rotated displays. In that case it falls back to GDI.
+- With HDR enabled, captures are converted to sRGB using the "SDR content brightness" white level. HDR highlights brighter than that are clipped to white.
 - Hidden parts of windows cannot be captured; only what is visible on screen is cropped.
 
 ## License

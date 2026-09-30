@@ -164,7 +164,7 @@ To make hotkeys work in apps running as administrator (e.g. games), choose "Rest
     <value>Rotated displays are not supported by Direct3D capture.</value>
   </data>
   <data name="Capture_FormatUnsupported" xml:space="preserve">
-    <value>Unsupported desktop format: {0} (use GDI if HDR is enabled)</value>
+    <value>Unsupported desktop format: {0}</value>
   </data>
   <data name="Capture_DDUnsupported" xml:space="preserve">
     <value>Desktop Duplication is not available in this environment (remote session or some virtual machines).</value>

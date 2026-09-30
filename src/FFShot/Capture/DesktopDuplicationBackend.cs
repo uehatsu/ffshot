@@ -13,11 +13,15 @@ namespace FFShot.Capture;
 /// DXGI Desktop Duplication（Direct3D 11）によるキャプチャ。
 /// モニター出力をテクスチャとして取得するため、GDI で黒くなる DirectX 全画面アプリも撮れる。
 /// 要求矩形にかかるすべての出力を撮影し、1 枚の Bitmap に合成する。
+/// HDR 有効時は FP16（scRGB）で受け取り、SDR の白を基準に 8bit sRGB へ変換する。
 /// </summary>
 internal sealed class DesktopDuplicationBackend : ICaptureBackend
 {
     private const uint FrameTimeoutMs = 250;
     private const int MaxAcquireAttempts = 8;
+
+    // HDR 出力では FP16、それ以外では BGRA を受け取れるよう両方を申告する
+    private static readonly Format[] SupportedFormats = [Format.R16G16B16A16_Float, Format.B8G8R8A8_UNorm];
 
     public string Name => "Direct3D";
 
@@ -100,8 +104,7 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
                             out device, out context).CheckError();
                     }
 
-                    using var output1 = output.QueryInterface<IDXGIOutput1>();
-                    CaptureOutput(output1, device, context!, outputRect, overlap, screenBounds.Location, target);
+                    CaptureOutput(output, desc.DeviceName, device, context!, outputRect, overlap, screenBounds.Location, target);
                     covered = true;
                 }
             }
@@ -114,20 +117,20 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
         return covered;
     }
 
-    private static void CaptureOutput(IDXGIOutput1 output, ID3D11Device device, ID3D11DeviceContext context,
+    private static void CaptureOutput(IDXGIOutput output, string deviceName, ID3D11Device device, ID3D11DeviceContext context,
         Rectangle outputRect, Rectangle overlap, Point targetOrigin, Bitmap target)
     {
         using var duplication = CreateDuplication(output, device);
-        var format = duplication.Description.ModeDescription.Format;
-        if (format != Format.B8G8R8A8_UNorm && format != Format.B8G8R8A8_UNorm_SRgb)
-        {
-            throw new CaptureException(string.Format(Strings.Capture_FormatUnsupported, format));
-        }
-
         using var frame = AcquireFrame(duplication);
         try
         {
             var srcDesc = frame.Description;
+            var isHdr = srcDesc.Format == Format.R16G16B16A16_Float;
+            if (!isHdr && srcDesc.Format != Format.B8G8R8A8_UNorm && srcDesc.Format != Format.B8G8R8A8_UNorm_SRgb)
+            {
+                throw new CaptureException(string.Format(Strings.Capture_FormatUnsupported, srcDesc.Format));
+            }
+
             var stagingDesc = new Texture2DDescription
             {
                 Width = srcDesc.Width,
@@ -147,7 +150,9 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
             var mapped = context.Map(staging, 0, MapMode.Read, MapFlags.None);
             try
             {
-                CopyRows(mapped, outputRect, overlap, targetOrigin, target);
+                // SDR の白レベルが取れない場合は scRGB の 1.0（80 nits）を白とみなす
+                var sdrWhite = isHdr ? SdrWhiteLevel.Get(deviceName) ?? 1f : 0f;
+                CopyRows(mapped, isHdr, sdrWhite, outputRect, overlap, targetOrigin, target);
             }
             finally
             {
@@ -160,11 +165,26 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
         }
     }
 
-    private static IDXGIOutputDuplication CreateDuplication(IDXGIOutput1 output, ID3D11Device device)
+    private static IDXGIOutputDuplication CreateDuplication(IDXGIOutput output, ID3D11Device device)
     {
         try
         {
-            return output.DuplicateOutput(device);
+            using (var output5 = output.QueryInterfaceOrNull<IDXGIOutput5>())
+            {
+                if (output5 is not null)
+                {
+                    try
+                    {
+                        return output5.DuplicateOutput1(device, SupportedFormats);
+                    }
+                    catch (SharpGenException ex) when (ex.ResultCode != ResultCode.NotCurrentlyAvailable)
+                    {
+                        // DuplicateOutput1 は Per-Monitor DPI 対応プロセスでしか使えないため、旧 API で再試行する
+                    }
+                }
+            }
+            using var output1 = output.QueryInterface<IDXGIOutput1>();
+            return output1.DuplicateOutput(device);
         }
         catch (SharpGenException ex) when (ex.ResultCode == ResultCode.Unsupported)
         {
@@ -208,14 +228,19 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
         throw new CaptureException(Strings.Capture_DDTimeout);
     }
 
-    /// <summary>マップ済みテクスチャの overlap 部分を target（原点 targetOrigin）へ行単位でコピーする。BGRA → Format32bppArgb は同一レイアウト。</summary>
-    private static unsafe void CopyRows(MappedSubresource mapped, Rectangle outputRect, Rectangle overlap, Point targetOrigin, Bitmap target)
+    /// <summary>
+    /// マップ済みテクスチャの overlap 部分を target（原点 targetOrigin）へ行単位でコピーする。
+    /// BGRA → Format32bppArgb は同一レイアウト。HDR（FP16）は sRGB 8bit に変換する。
+    /// </summary>
+    private static unsafe void CopyRows(MappedSubresource mapped, bool isHdr, float sdrWhite,
+        Rectangle outputRect, Rectangle overlap, Point targetOrigin, Bitmap target)
     {
         var data = target.LockBits(new Rectangle(Point.Empty, target.Size), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
         try
         {
             var srcBase = (byte*)mapped.DataPointer;
             var dstBase = (byte*)data.Scan0;
+            var srcPixelBytes = isHdr ? 8L : 4L;
             var rowBytes = overlap.Width * 4;
             var srcX = overlap.X - outputRect.X;
             var srcY = overlap.Y - outputRect.Y;
@@ -224,8 +249,13 @@ internal sealed class DesktopDuplicationBackend : ICaptureBackend
 
             for (var y = 0; y < overlap.Height; y++)
             {
-                var src = srcBase + (srcY + y) * (long)mapped.RowPitch + srcX * 4L;
+                var src = srcBase + (srcY + y) * (long)mapped.RowPitch + srcX * srcPixelBytes;
                 var dst = dstBase + (dstY + y) * (long)data.Stride + dstX * 4L;
+                if (isHdr)
+                {
+                    ScRgbConverter.ConvertRow((Half*)src, dst, overlap.Width, sdrWhite);
+                    continue;
+                }
                 Buffer.MemoryCopy(src, dst, rowBytes, rowBytes);
                 // デスクトップ面のアルファは不定なので不透明に揃える
                 for (var x = 3; x < rowBytes; x += 4)
